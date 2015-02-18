@@ -26,7 +26,7 @@ Graph::~Graph() {
 }
 
 int Graph::AddNode() {
-	nodes.emplace_back(GrNode(nextNodeName));
+	nodes.emplace_back(new GrNode(nextNodeName));
 	nextNodeName++;
 	return nodes[nodes.size() - 1]->name;
 }
@@ -132,7 +132,7 @@ std::ostream& operator<<(std::ostream& stream, Graph& graph) {
 			//post all edges
 			for (int j = 0; j < graph.nodes[i]->edges.size(); j++) {
 				//post edge
-				stream << " " << graph.nodes[i]->edges[i] << " |";
+				stream << " " << graph.nodes[i]->edges[j] << " |";
 			}
 
 		} else {
@@ -153,6 +153,6 @@ std::ostream& operator<<(std::ostream& stream, GrNode& grNode) {
 	return stream;
 }
 std::ostream& operator<<(std::ostream& stream, GrEdge& grEdge) {
-	stream << "T:" << grEdge.end << " C:" << grEdge.cost << std::endl;
+	stream << "T:" << grEdge.end->name << " C:" << grEdge.cost;
 	return stream;
 }

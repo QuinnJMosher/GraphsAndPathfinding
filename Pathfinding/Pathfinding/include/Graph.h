@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+class GrNode;
+
 struct GrEdge {
 	GrNode* end;
 
