@@ -297,6 +297,62 @@ int Graph::TraverseCostDFS(int in_name_start, int in_name_end) {
 	return -1;
 }
 
+void Graph::CreateGrid(int in_nodesWide, int in_nodesTall, float in_width, float in_height) {
+	nodes.clear();
+	for (float i = 0; i < in_nodesWide; i++) {
+		for (float j = 0; j < in_nodesTall; j++) {
+			AddNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height);
+		}
+	}
+
+	for (float i = 0; i < in_nodesWide; i++) {
+		for (float j = 0; j < in_nodesTall; j++) {
+
+			if (i > 0) { //left one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i - 1) / in_nodesWide * in_width, j / in_nodesTall * in_height));
+			}
+			if (j > 0) {//up one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode(i / in_nodesWide * in_width, (j - 1) / in_nodesTall * in_height));
+			}
+			
+			if (i < in_nodesWide - 1) {//right one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i + 1) / in_nodesWide * in_width, j / in_nodesTall * in_height));
+			}
+			if (j < in_nodesTall - 1) {//down one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode(i / in_nodesWide * in_width, (j + 1) / in_nodesTall * in_height));
+			}
+
+			if (i > 0 && j > 0) {//up and left one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i - 1) / in_nodesWide * in_width, (j - 1) / in_nodesTall * in_height));
+			}
+			if (i < in_nodesWide - 1 && j > 0) {//up and right one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i + 1) / in_nodesWide * in_width, (j - 1) / in_nodesTall * in_height));
+			}
+
+			if (i > 0 && j < in_nodesTall - 1) {//down and left one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i - 1) / in_nodesWide * in_width, (j + 1) / in_nodesTall * in_height));
+			}
+			if (i < in_nodesWide - 1 && j < in_nodesTall - 1) {//down and right one
+				AddEdge(NearestNode(i / in_nodesWide * in_width, j / in_nodesTall * in_height), NearestNode((i + 1) / in_nodesWide * in_width, (j + 1) / in_nodesTall * in_height));
+			}
+
+		}
+	}
+}
+
+int Graph::NearestNode(float in_x, float in_y) {
+	int closestNode = -1;
+	float shortestDistance = FLT_MAX;
+	for (int i = 0; i < nodes.size(); i++) {
+		float currentValue = std::abs(nodes[i]->posX - in_x) + std::abs(nodes[i]->posY - in_y);
+		if (currentValue < shortestDistance) {
+			shortestDistance = currentValue;
+			closestNode = nodes[i]->name;
+		}
+	}
+
+	return closestNode;
+}
 
 std::ostream& operator<<(std::ostream& stream, Graph& graph) {
 	//post graph
@@ -331,7 +387,7 @@ std::ostream& operator<<(std::ostream& stream, Graph& graph) {
 }
 
 std::ostream& operator<<(std::ostream& stream, GrNode& grNode) {
-	stream << grNode.name;
+	stream << grNode.name << "(" << grNode.posX << ", "<< grNode.posY << ")";
 	return stream;
 }
 std::ostream& operator<<(std::ostream& stream, GrEdge& grEdge) {

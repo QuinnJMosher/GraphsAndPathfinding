@@ -42,6 +42,8 @@ public:
 	void SetNodePos(int in_name, float in_x, float in_y);
 	void GetNodePos(int in_name, float& in_x, float& in_y);
 
+	int NearestNode(float in_x, float in_y);//returns node name
+
 	void AddEdge(int in_name_from, int in_name_to, float in_cost = 0);
 	void AddConnections(int in_name_end1, int in_name_end2, float in_cost = 0);
 
@@ -52,6 +54,8 @@ public:
 	bool IsConnectedDFS(int in_name_start, int in_name_end);
 	int NodeDistanceDFS(int in_name_start, int in_name_end);
 	int TraverseCostDFS(int in_name_start, int in_name_end);
+
+	void CreateGrid(int in_nodesWide, int in_nodesTall, float in_width, float in_height);
 
 	std::vector<int> GetNames();
 
