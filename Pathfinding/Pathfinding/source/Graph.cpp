@@ -2,6 +2,16 @@
 
 GrNode::GrNode(int in_name) {
 	name = in_name;
+	visited = false;
+	posX = 0.0f;
+	posY = 0.0f;
+}
+
+GrNode::GrNode(int in_name, float in_x, float in_y) {
+	name = in_name;
+	visited = false;
+	posX = in_x;
+	posY = in_y;
 }
 
 GrNode::~GrNode() { }
@@ -31,6 +41,14 @@ int Graph::AddNode() {
 	return nodes[nodes.size() - 1]->name;
 }
 
+int Graph::AddNode(float in_x, float in_y) {
+	nodes.emplace_back(new GrNode(nextNodeName));
+	nodes.back()->posX = in_x;
+	nodes.back()->posY = in_y;
+	nextNodeName++;
+	return nodes[nodes.size() - 1]->name;
+}
+
 void Graph::RemoveNode(int in_name) {
 	for (int i = 0; i < nodes.size(); i++) {
 		nodes[i]->RemoveEdgesTo(in_name);
@@ -41,6 +59,18 @@ void Graph::RemoveNode(int in_name) {
 			nodes.erase(nodes.begin() + i);
 		}
 	}
+}
+
+void Graph::SetNodePos(int in_name, float in_x, float in_y){
+	GrNode* target = FindNodeByName(in_name);
+	target->posX = in_x;
+	target->posY = in_y;
+}
+
+void Graph::GetNodePos(int in_name, float& in_x, float& in_y) {
+	GrNode* target = FindNodeByName(in_name);
+	in_x = target->posX;
+	in_y = target->posY;
 }
 
 void Graph::AddEdge(int in_name_from, int in_name_to, float in_cost) {
@@ -107,12 +137,164 @@ GrNode* Graph::FindNodeByName(int in_name) {
 	return nullptr;
 }
 
+void Graph::ResetVisited() {
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->visited = false;
+	}
+}
+
 std::vector<int> Graph::GetNames() {
 	std::vector<int>out;
 	for (int i = 0; i < nodes.size(); i++) {
 		out.emplace_back(nodes[i]->name);
 	}
 	return out;
+}
+
+bool Graph::IsConnectedDFS(int in_name_start, int in_name_end) {
+	ResetVisited();
+	GrNode* start = FindNodeByName(in_name_start);
+	GrNode* end = FindNodeByName(in_name_end);
+
+	std::stack<GrNode*> nodeStack = std::stack<GrNode*>();
+	nodeStack.push(start);
+
+	while (!nodeStack.empty())
+	{
+		GrNode* current = nodeStack.top();
+		nodeStack.pop();
+
+		if (current->visited == true)
+		{
+			continue;
+		}
+
+		current->visited = true;
+
+		if (current == end)
+		{
+			return true;
+		}
+
+		for (int i = 0; i < current->edges.size(); ++i) {
+			nodeStack.push(current->edges[i].end);
+		}
+	}
+
+	return false;
+}
+
+int Graph::NodeDistanceDFS(int in_name_start, int in_name_end) {
+	ResetVisited();
+	GrNode* end = FindNodeByName(in_name_end);
+
+	std::stack<GrNode*> nodeStack = std::stack<GrNode*>();
+	nodeStack.push(FindNodeByName(in_name_start));
+
+	std::vector<GrNode*> path = std::vector<GrNode*>();
+
+	while (!nodeStack.empty())
+	{
+		GrNode* current = nodeStack.top();
+		path.emplace_back(current);
+		nodeStack.pop();
+
+		if (current->visited == true)
+		{
+			continue;
+		}
+
+		current->visited = true;
+
+		if (current == end)
+		{
+			return path.size() - 1;
+		}
+
+		if (current->edges.size() > 0) {
+			for (int i = 0; i < current->edges.size(); ++i) {
+				nodeStack.push(current->edges[i].end);
+			}
+		} else {
+			path.erase(path.end());
+		}
+
+		for (int i = path.size() - 1; i >= 0; i--) {
+			bool UnvisitedNodes = false;
+			for (int j = 0; j < path[i]->edges.size(); j++) {
+				if (path[i]->edges[j].end->visited == false) {
+					UnvisitedNodes = true;
+				}
+			}
+			if (!UnvisitedNodes) {
+				path.erase(path.begin() + i);
+			}
+		}
+	}
+
+	return -1;
+}
+int Graph::TraverseCostDFS(int in_name_start, int in_name_end) {
+	ResetVisited();
+	GrNode* end = FindNodeByName(in_name_end);
+
+	std::stack<GrNode*> nodeStack = std::stack<GrNode*>();
+	nodeStack.push(FindNodeByName(in_name_start));
+
+	std::vector<GrNode*> path = std::vector<GrNode*>();
+
+	while (!nodeStack.empty())
+	{
+		GrNode* current = nodeStack.top();
+		path.emplace_back(current);
+		nodeStack.pop();
+
+		if (current->visited == true)
+		{
+			continue;
+		}
+
+		current->visited = true;
+
+		if (current == end)
+		{
+			int cost = 0;
+			for (int i = 0; i < path.size() - 1; i++) {
+				int nextEdgeCost;
+				for (int j = 0; j < path[i]->edges.size(); j++) {
+					if (path[i]->edges[j].end == path[i + 1]) {
+						nextEdgeCost = path[i]->edges[j].cost;
+					}
+				}
+
+				cost += 1 + nextEdgeCost;
+			}
+			return cost;
+		}
+
+		if (current->edges.size() > 0) {
+			for (int i = 0; i < current->edges.size(); ++i) {
+				nodeStack.push(current->edges[i].end);
+			}
+		}
+		else {
+			path.erase(path.end());
+		}
+
+		for (int i = path.size() - 1; i >= 0; i--) {
+			bool UnvisitedNodes = false;
+			for (int j = 0; j < path[i]->edges.size(); j++) {
+				if (path[i]->edges[j].end->visited == false) {
+					UnvisitedNodes = true;
+				}
+			}
+			if (!UnvisitedNodes) {
+				path.erase(path.begin() + i);
+			}
+		}
+	}
+
+	return -1;
 }
 
 

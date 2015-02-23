@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stack>
 
 class GrNode;
 
@@ -15,11 +16,17 @@ struct GrEdge {
 class GrNode {
 public:
 	GrNode(int in_name);
+	GrNode(int in_name, float in_x, float in_y);
 	~GrNode();
 
 	void RemoveEdgesTo(int in_name);
 
 	int name;
+
+	float posX;
+	float posY;
+
+	bool visited;
 
 	std::vector<GrEdge>edges;
 };
@@ -30,7 +37,10 @@ public:
 	~Graph();
 
 	int AddNode();//returns node name;
+	int AddNode(float in_x, float in_y);//returns node name;
 	void RemoveNode(int in_name);
+	void SetNodePos(int in_name, float in_x, float in_y);
+	void GetNodePos(int in_name, float& in_x, float& in_y);
 
 	void AddEdge(int in_name_from, int in_name_to, float in_cost = 0);
 	void AddConnections(int in_name_end1, int in_name_end2, float in_cost = 0);
@@ -39,12 +49,17 @@ public:
 	void RemoveConections(int in_name_end1, int in_name_end2);
 	void ClearEdges(int in_name);
 
+	bool IsConnectedDFS(int in_name_start, int in_name_end);
+	int NodeDistanceDFS(int in_name_start, int in_name_end);
+	int TraverseCostDFS(int in_name_start, int in_name_end);
+
 	std::vector<int> GetNames();
 
 	friend std::ostream& operator<<(std::ostream& stream, Graph& graph);
 
 private:
 	GrNode* FindNodeByName(int in_name);
+	void ResetVisited();
 
 	int nextNodeName;
 	std::vector<GrNode*>nodes;
