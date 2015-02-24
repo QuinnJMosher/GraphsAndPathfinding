@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <queue>
 
 class GrNode;
 
@@ -27,6 +28,10 @@ public:
 	float posY;
 
 	bool visited;
+
+	//dijkstra's algorithm
+	GrNode* previousNode;
+	int gScore;
 
 	std::vector<GrEdge>edges;
 };
@@ -55,6 +60,8 @@ public:
 	int NodeDistanceDFS(int in_name_start, int in_name_end);
 	int TraverseCostDFS(int in_name_start, int in_name_end);
 
+	std::vector<int> FindPath(int in_name_start, int in_name_end);
+
 	void CreateGrid(int in_nodesWide, int in_nodesTall, float in_width, float in_height);
 
 	std::vector<int> GetNames();
@@ -64,6 +71,7 @@ public:
 private:
 	GrNode* FindNodeByName(int in_name);
 	void ResetVisited();
+	void PreparePathfind();
 
 	int nextNodeName;
 	std::vector<GrNode*>nodes;

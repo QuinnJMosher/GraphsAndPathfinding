@@ -5,6 +5,8 @@ GrNode::GrNode(int in_name) {
 	visited = false;
 	posX = 0.0f;
 	posY = 0.0f;
+	previousNode = nullptr;
+	gScore = 0;
 }
 
 GrNode::GrNode(int in_name, float in_x, float in_y) {
@@ -12,6 +14,8 @@ GrNode::GrNode(int in_name, float in_x, float in_y) {
 	visited = false;
 	posX = in_x;
 	posY = in_y;
+	previousNode = nullptr;
+	gScore = 0;
 }
 
 GrNode::~GrNode() { }
@@ -352,6 +356,94 @@ int Graph::NearestNode(float in_x, float in_y) {
 	}
 
 	return closestNode;
+}
+
+
+std::vector<int> Graph::FindPath(int in_name_start, int in_name_end) {
+	PreparePathfind();
+	ResetVisited();
+	GrNode* start = FindNodeByName(in_name_start);
+	GrNode* end = FindNodeByName(in_name_end);
+
+	std::queue<GrNode*> priorityQueue = std::queue<GrNode*>();
+	priorityQueue.push(start);
+	start->previousNode = start;
+	start->gScore = 0;
+
+	while (!priorityQueue.empty()) {
+		//get current node off the queue
+		GrNode* current = priorityQueue.front();
+		//remove it frome queue
+		priorityQueue.pop();
+
+		if (!current->visited) {
+
+			//mark it as visited
+			current->visited = true;
+
+			//loop through edges
+			for (int i = 0; i < current->edges.size(); i++) {
+
+				//get cost to traverse
+				int cost = current->gScore + current->edges[i].cost + 1;
+
+				//calculate heuristic (by distance from target)
+				int heuristic = (std::abs(current->edges[i].end->posX - end->posX) + std::abs(current->edges[i].end->posY - end->posY)) / 100;
+
+				//if the cost calculated is less that the end's current cost:
+				if (cost < current->edges[i].end->gScore + heuristic) {
+
+					//set it's previousNode to the current one
+					current->edges[i].end->previousNode = current;
+
+					//set it's gScore to the cost calculated
+					current->edges[i].end->gScore = cost;
+
+					//if it hasent been traversed add it the the queue
+					if (current->edges[i].end->visited != true) {
+						priorityQueue.push(current->edges[i].end);
+					}//if not visited
+
+				}//if traverse cost is cheaper
+			}//for loop
+
+		}//if not visited
+
+	}//while loop
+
+	//make output vector
+	std::vector<int>out = std::vector<int>();
+
+	//check to see if we actually found a path
+	if (end->previousNode != nullptr) {
+		//add the end point to list
+		out.emplace_back(end->name);
+		//prepare variable for while loop
+		GrNode* next = end->previousNode;
+
+		//run while loop until we find a node who has itself as it's previous node (the starting node)
+		while (next->previousNode != next) {
+
+			//add current node to list
+			out.emplace(out.begin(), next->name);
+			//move to next node
+			next = next->previousNode;
+		}
+		//add the first node to list
+		out.emplace(out.begin(), next->name);
+	} else {
+		//path not foud output error code
+		out.emplace_back(-1);
+	}
+
+	return out;
+}
+
+void Graph::PreparePathfind() {
+	for (int i = 0; i < nodes.size(); i++) {
+		nodes[i]->previousNode = nullptr;
+		nodes[i]->gScore = INT_MAX - 300000;
+	}
 }
 
 std::ostream& operator<<(std::ostream& stream, Graph& graph) {
