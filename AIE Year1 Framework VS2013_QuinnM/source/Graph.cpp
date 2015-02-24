@@ -446,6 +446,18 @@ void Graph::PreparePathfind() {
 	}
 }
 
+std::vector<int> Graph::GetNodesConectedTo(int in_name) {
+	GrNode* node = FindNodeByName(in_name);
+
+	std::vector<int>out = std::vector<int>();
+
+	for (int i = 0; i < node->edges.size(); i++) {
+		out.emplace_back(node->edges[i].end->name);
+	}
+
+	return out;
+}
+
 std::ostream& operator<<(std::ostream& stream, Graph& graph) {
 	//post graph
 	stream << "Graph: {\n";

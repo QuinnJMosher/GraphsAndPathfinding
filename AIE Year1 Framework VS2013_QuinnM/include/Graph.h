@@ -46,6 +46,7 @@ public:
 	void RemoveNode(int in_name);
 	void SetNodePos(int in_name, float in_x, float in_y);
 	void GetNodePos(int in_name, float& in_x, float& in_y);
+	std::vector<int> GetNodesConectedTo(int in_name);//returns list of node names
 
 	int NearestNode(float in_x, float in_y);//returns node name
 
