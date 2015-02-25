@@ -16,17 +16,20 @@ int main( int argc, char* argv[] )
 	Agent agent = Agent(100, 100, 200);
 
 	Graph graph = Graph();
-	graph.AddNode(450, 100);
-	graph.AddNode(100, 300);
 	graph.AddNode(450, 500);
 	graph.AddNode(800, 300);
+	graph.AddNode(450, 100);
+	graph.AddNode(100, 300);
 
 	std::vector<int>names = graph.GetNames();
 
-	graph.AddEdge(names[0], names[1]);
-	graph.AddEdge(names[1], names[2]);
-	graph.AddEdge(names[2], names[3]);
-	//graph.AddEdge(names[3], names[0]);
+	graph.AddConnections(names[0], names[1]);
+	graph.AddConnections(names[1], names[2]);
+	graph.AddConnections(names[2], names[3]);
+	graph.AddConnections(names[3], names[0]);
+
+	graph.AddConnections(names[0], names[2]);
+	graph.AddConnections(names[1], names[3]);
 
 	agent.SetGraph(&graph);
 
@@ -54,13 +57,17 @@ int main( int argc, char* argv[] )
 
 		}
 
-		if (IsKeyDown(' ')) {
+		if (IsKeyDown('1')) {
 			agent.GoTo(800, 500);
 		}
 
-		//draw goal
-		MoveSprite(GraphPointSpriteId, 800, 500);
-		DrawSprite(GraphPointSpriteId);
+		if (IsKeyDown('2')) {
+			agent.GoTo(800, 100);
+		}
+
+		if (IsKeyDown('3')) {
+			agent.GoTo(100, 100);
+		}
 
 		//update agent
 		agent.Update(GetDeltaTime());

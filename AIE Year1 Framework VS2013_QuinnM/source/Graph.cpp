@@ -390,8 +390,10 @@ std::vector<int> Graph::FindPath(int in_name_start, int in_name_end) {
 				//calculate heuristic (by distance from target)
 				int heuristic = (std::abs(current->edges[i].end->posX - end->posX) + std::abs(current->edges[i].end->posY - end->posY)) / 100;
 
+				cost += heuristic;
+
 				//if the cost calculated is less that the end's current cost:
-				if (cost < current->edges[i].end->gScore + heuristic) {
+				if (cost < current->edges[i].end->gScore /*+ heuristic*/) {
 
 					//set it's previousNode to the current one
 					current->edges[i].end->previousNode = current;
