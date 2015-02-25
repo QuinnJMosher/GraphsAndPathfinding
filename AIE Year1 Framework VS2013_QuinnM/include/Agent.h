@@ -11,9 +11,10 @@ public:
 
 	void SetGraph(Graph* in_graph);
 	void GoTo(float in_x, float in_y);
+	void SmoothPath();
 
 	void Update(float in_deltaTime);
-	void draw();
+	void Draw();
 
 private:
 	//position

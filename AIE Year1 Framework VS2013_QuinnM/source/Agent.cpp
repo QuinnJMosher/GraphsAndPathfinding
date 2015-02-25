@@ -42,7 +42,35 @@ void Agent::GoTo(float in_x, float in_y) {
 	}
 	targetX = in_x;
 	targetY = in_y;
+	//smooth path
+
 	isMoving = true;
+}
+
+void Agent::SmoothPath() {
+	for (int i = 0; i < path.size() - 2; i++) {
+		//get position of the start of the line
+		float end1_x, end1_y;
+		pathfindingNodes->GetNodePos(path[i], end1_x, end1_y);
+
+		//check for unnessesary nodes after current node
+		for (int j = i + 2; j < path.size(); j++) {//change to while loop (we will only need to access i and i + 2)
+			float end2_x, end2_y;
+			pathfindingNodes->GetNodePos(path[j], end2_x, end2_y);
+
+			//get box points
+			//find where min point is (above/below) (right/left)
+			//find where max point is
+			//compare the point's relitive positions
+			//if they aren't coliding, remove the extra point and suptract j by one
+			//break loop it they are coliding
+		}
+
+	}
+
+	//if(while?) path.size() > 2 run comparison between current pos and path[1]
+	
+	//if path.size() == 1 run comparison between current pos and target pos
 }
 
 void Agent::Update(float in_deltaTime) {
@@ -117,7 +145,8 @@ void Agent::Update(float in_deltaTime) {
 		posY -= directionY * currentSpeed;
 	}
 }
-void Agent::draw() {
+
+void Agent::Draw() {
 	MoveSprite(textureId, posX, posY);
 	DrawSprite(textureId);
 }
