@@ -422,7 +422,7 @@ std::vector<int> Graph::FindPath(int in_name_start, int in_name_end) {
 		GrNode* next = end->previousNode;
 
 		//run while loop until we find a node who has itself as it's previous node (the starting node)
-		while (next->previousNode != next) {
+		while (next->previousNode != next && end->name != start->name) {
 
 			//add current node to list
 			out.emplace(out.begin(), next->name);

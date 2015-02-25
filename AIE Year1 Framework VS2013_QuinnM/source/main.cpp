@@ -13,7 +13,7 @@ int main( int argc, char* argv[] )
     SetBackgroundColour(SColour(0, 0, 0, 255));
 
 	unsigned int GraphPointSpriteId = CreateSprite("images/invaders/invaders_7_01.png", 30, 30, true, SColour(255, 0, 0, 255));
-	
+	Agent agent = Agent(100, 100, 200);
 
 	Graph graph = Graph();
 	graph.AddNode(450, 100);
@@ -26,7 +26,9 @@ int main( int argc, char* argv[] )
 	graph.AddEdge(names[0], names[1]);
 	graph.AddEdge(names[1], names[2]);
 	graph.AddEdge(names[2], names[3]);
-	graph.AddEdge(names[3], names[0]);
+	//graph.AddEdge(names[3], names[0]);
+
+	agent.SetGraph(&graph);
 
     //Game Loop
     do
@@ -51,6 +53,19 @@ int main( int argc, char* argv[] )
 			}
 
 		}
+
+		if (IsKeyDown(' ')) {
+			agent.GoTo(800, 500);
+		}
+
+		//draw goal
+		MoveSprite(GraphPointSpriteId, 800, 500);
+		DrawSprite(GraphPointSpriteId);
+
+		//update agent
+		agent.Update(GetDeltaTime());
+		//draw Agent
+		agent.draw();
 
     } while(!FrameworkUpdate());
 
