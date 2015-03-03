@@ -57,6 +57,8 @@ void Agent::GoTo(float in_x, float in_y) {
 
 void Agent::SmoothPath() {
 	if (walls != nullptr && walls->size() > 0) {
+
+		//check within the nodes
 		for (int i = 0; i < path.size() - 2; i++) {
 			//get position of the start of the line
 			float end1_x, end1_y;
@@ -84,31 +86,34 @@ void Agent::SmoothPath() {
 
 			}
 		}
-		//if(while?) path.size() > 2 run comparison between current pos and path[1]
+
+		//check current position against nodes
 		while (path.size() > 1) {
+
+			bool hasColided = false;
 
 			for (int box = 0; box < walls->size(); box++) {
 
+				//get node
 				float nodeX, nodeY;
 				pathfindingNodes->GetNodePos(path[1], nodeX, nodeY);
 
-				bool hasColided = false;
-
+				//check colide
 				if (walls->at(box).IntersectsWith(posX, posY, nodeX, nodeY)) {
 					hasColided = true;
 					break;
 				}
 
-				if (hasColided) {
-					break;//if we've colided then we need to advance i
-				}
-				else {
-					path.erase(path.begin());
-				}
+			}
+
+			if (hasColided) {
+				break;//if we've colided then we need to advance i
+			} else {
+				path.erase(path.begin());
 			}
 		}
 
-		//if path.size() == 1 run comparison between current pos and target pos
+		//check current pos and target nodes
 		if (path.size() == 1) {
 			bool hasColided = false;
 

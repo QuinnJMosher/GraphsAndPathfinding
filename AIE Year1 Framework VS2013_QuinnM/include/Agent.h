@@ -3,6 +3,7 @@
 #include "AIE.h"
 #include "Graph.h"
 #include "Wall.h"
+#include <cmath>
 
 class Agent {
 public:

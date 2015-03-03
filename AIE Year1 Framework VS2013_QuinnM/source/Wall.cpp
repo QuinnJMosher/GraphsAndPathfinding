@@ -34,128 +34,55 @@ void Wall::GetBottomRight(float& ref_x, float& ref_y) {
 }
 
 bool Wall::IntersectsWith(float end1_x, float end1_y, float end2_x, float end2_y) {
-	//get points
-	float boxMin_x, boxMin_y;
-	GetTopLeft(boxMin_x, boxMin_y);
-	float boxMax_x, boxMax_y;
-	GetBottomRight(boxMax_x, boxMax_y);
+	//set ray O to end1
+	float ray_O_x = end1_x, ray_O_y = end1_y;
+	//find magnitude of end to from origin of end1
+	float ray_Magnitude = std::sqrt(std::pow(end2_x - end1_x, 2) + std::pow(end2_y - end1_x, 2));
+	//set Direction of the ray
+	float ray_R_x = (end2_x - end1_x) / ray_Magnitude;
+	float ray_R_y = (end2_y - end1_y) / ray_Magnitude;
 
-	//setup bools
-	bool topLeft_above, bottomRight_above, topRight_above, bottomLeft_above;
+	//get minimum and maximum values for this box
+	float min_x, min_y;
+	GetTopLeft(min_x, min_y);
+	float max_x, max_y;
+	GetBottomRight(max_x, max_y);
 
-	//topLeft
-	if (boxMin_x > std::max(end1_x, end2_x)) {//greater than both
-		topLeft_above = true;
-	}
-	else if (boxMin_x > std::min(end1_x, end2_x)) { //in between the two
-		//find what percwntage we are between the points vertically
-		float lerpT = (boxMin_y - std::min(end1_y, end2_y)) / (std::max(end1_y, end2_y) - std::min(end1_y, end2_y));
-		//find the point the line crosses at our height
-		float linePos;
-		linePos = lerp(end1_x, end2_x, lerpT);
-
-		//compare
-		if (linePos < boxMin_x) {// / < . 
-			topLeft_above = true;
-		}
-		else if (linePos > boxMin_x) {// . < /
-			topLeft_above = false;
-		}
-		else { //they are equal
-			return true;
-		}
-	}
-	else if (boxMin_x < std::min(end1_x, end2_x)) {//less than both
-		topLeft_above = true;
+	//setup ray min/max
+	float tmin = (min_x - ray_O_x) / ray_R_x;
+	float tmax = (max_x - ray_O_x) / ray_R_x;
+	if (tmin > tmax) {
+		float temp = tmin;
+		tmin = tmax;
+		tmax = temp;
 	}
 
-	//bottom right
-	if (boxMax_x > std::max(end1_x, end2_x)) {//greater than both
-		bottomRight_above = true;
-	}
-	else if (boxMax_x > std::min(end1_x, end2_x)) { //in between the two
-		//find what percwntage we are between the points vertically
-		float lerpT = (boxMax_y - std::min(end1_y, end2_y)) / (std::max(end1_y, end2_y) - std::min(end1_y, end2_y));
-		//find the point the line crosses at our height
-		float linePos;
-		linePos = lerp(end1_x, end2_x, lerpT);
-
-		//compare
-		if (linePos < boxMax_x) {// / < . 
-			bottomRight_above = true;
-		}
-		else if (linePos > boxMax_x) {// . < /
-			bottomRight_above = false;
-		}
-		else { //they are equal
-			return true;
-		}
-	}
-	else if (boxMax_x < std::min(end1_x, end2_x)) {//less than both
-		bottomRight_above = true;
+	float tymin = (min_y - ray_O_y) / ray_R_y;
+	float tymax = (max_y - ray_O_y) / ray_R_y;
+	if (tymin > tymax) {
+		float temp = tymin;
+		tymin = tymax;
+		tymax = temp;
 	}
 
-	//topRight
-	if (boxMax_x > std::max(end1_x, end2_x)) {//greater than both
-		topRight_above = true;
-	}
-	else if (boxMax_x > std::min(end1_x, end2_x)) { //in between the two
-		//find what percwntage we are between the points vertically
-		float lerpT = (boxMin_y - std::min(end1_y, end2_y)) / (std::max(end1_y, end2_y) - std::min(end1_y, end2_y));
-		//find the point the line crosses at our height
-		float linePos;
-		linePos = lerp(end1_x, end2_x, lerpT);
-
-		//compare
-		if (linePos < boxMax_x) {// / < . 
-			topRight_above = true;
-		}
-		else if (linePos > boxMax_x) {// . < /
-			topRight_above = false;
-		}
-		else { //they are equal
-			return true;
-		}
-	}
-	else if (boxMax_x < std::min(end1_x, end2_x)) {//less than both
-		topRight_above = true;
-	}
-
-	//bottomLeft
-	if (boxMin_x > std::max(end1_x, end2_x)) {//greater than both
-		bottomLeft_above = true;
-	}
-	else if (boxMin_x > std::min(end1_x, end2_x)) { //in between the two
-		//find what percwntage we are between the points vertically
-		float lerpT = (boxMax_y - std::min(end1_y, end2_y)) / (std::max(end1_y, end2_y) - std::min(end1_y, end2_y));
-		//find the point the line crosses at our height
-		float linePos;
-		linePos = lerp(end1_x, end2_x, lerpT);
-
-		//compare
-		if (linePos < boxMin_x) {// / < . 
-			bottomLeft_above = true;
-		}
-		else if (linePos > boxMin_x) {// . < /
-			bottomLeft_above = false;
-		}
-		else { //they are equal
-			return true;
-		}
-	}
-	else if (boxMin_x < std::min(end1_x, end2_x)) {//less than both
-		bottomLeft_above = true;
-	}
-
-	//if all of the bools are the same then the line hasen't touched us, otherwise it has
-	if (bottomLeft_above && bottomRight_above && topLeft_above && topRight_above) {
+	//if the ray misses
+	if ((tmin > tymax) || (tymin > tmax)) {
 		return false;
-	} else if (!bottomLeft_above && !bottomRight_above && !topLeft_above && !topRight_above) {
-		return false;
-	} else {
-		return true;
 	}
 
+	if (tymin > tmin) {
+		tmin = tymin;
+	}
+
+	if (tymax < tmax) {
+		tmax = tymax;
+	}
+
+	//check if the box we hit is within the line
+	if ((tmin > ray_Magnitude) || (tmax < 0)) {
+		return false;
+	}
+	return true;
 }
 
 float Wall::lerp(float v0, float v1, float t) {
