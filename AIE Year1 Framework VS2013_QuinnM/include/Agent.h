@@ -2,6 +2,7 @@
 #define _Agent_h_
 #include "AIE.h"
 #include "Graph.h"
+#include "Wall.h"
 
 class Agent {
 public:
@@ -10,6 +11,7 @@ public:
 	~Agent();
 
 	void SetGraph(Graph* in_graph);
+	void SetWalls(std::vector<Wall>* in_walls);
 	void GoTo(float in_x, float in_y);
 	void SmoothPath();
 
@@ -17,6 +19,7 @@ public:
 	void Draw();
 
 private:
+
 	//position
 	float posX;
 	float posY;
@@ -24,6 +27,8 @@ private:
 
 	//pathfinding
 	Graph* pathfindingNodes;
+	std::vector<Wall>* walls;
+
 	std::vector<int>path;
 	float targetX;
 	float targetY;

@@ -9,10 +9,12 @@ Agent::Agent(float in_startX, float in_startY, float in_maxSpeed) {
 	textureId = CreateSprite("images/invaders/invaders_1_00.png", 40, 40, true);
 
 	pathfindingNodes = nullptr;
+	walls = nullptr;
 	float targetX = 0;
 	float targetY = 0;
 	isMoving = false;
 }
+
 Agent::Agent() {
 	posX = 0;
 	posY = 0;
@@ -22,6 +24,7 @@ Agent::Agent() {
 	textureId = CreateSprite("images/invaders/invaders_1_00.png", 40, 40, true);
 
 	pathfindingNodes = nullptr;
+	walls = nullptr;
 	float targetX = 0;
 	float targetY = 0;
 	isMoving = false;
@@ -33,6 +36,10 @@ void Agent::SetGraph(Graph* in_graph) {
 	pathfindingNodes = in_graph;
 }
 
+void Agent::SetWalls(std::vector<Wall>* in_walls) {
+	walls = in_walls;
+}
+
 void Agent::GoTo(float in_x, float in_y) {
 	if (pathfindingNodes != nullptr) {
 		int startNode = pathfindingNodes->NearestNode(posX, posY);
@@ -42,35 +49,84 @@ void Agent::GoTo(float in_x, float in_y) {
 	}
 	targetX = in_x;
 	targetY = in_y;
-	//smooth path
+
+	SmoothPath();
 
 	isMoving = true;
 }
 
 void Agent::SmoothPath() {
-	for (int i = 0; i < path.size() - 2; i++) {
-		//get position of the start of the line
-		float end1_x, end1_y;
-		pathfindingNodes->GetNodePos(path[i], end1_x, end1_y);
+	if (walls != nullptr && walls->size() > 0) {
+		for (int i = 0; i < path.size() - 2; i++) {
+			//get position of the start of the line
+			float end1_x, end1_y;
+			pathfindingNodes->GetNodePos(path[i], end1_x, end1_y);
 
-		//check for unnessesary nodes after current node
-		for (int j = i + 2; j < path.size(); j++) {//change to while loop (we will only need to access i and i + 2)
-			float end2_x, end2_y;
-			pathfindingNodes->GetNodePos(path[j], end2_x, end2_y);
+			//check for unnessesary nodes after current node
+			while (path.size() > i + 2) {//change to while loop (we will only need to access i and i + 2)
+				float end2_x, end2_y;
+				pathfindingNodes->GetNodePos(path[i + 2], end2_x, end2_y);
 
-			//get box points
-			//find where min point is (above/below) (right/left)
-			//find where max point is
-			//compare the point's relitive positions
-			//if they aren't coliding, remove the extra point and suptract j by one
-			//break loop it they are coliding
+				bool hasColided = false;
+				//check for any boxes in the way
+				for (int box = 0; box < walls->size(); box++) {
+					if (walls->at(box).IntersectsWith(end1_x, end1_y, end2_x, end2_y)) {
+						hasColided = true;
+						break;
+					}
+				}
+
+				if (hasColided) {
+					break;//if we've colided then we need to advance i
+				} else {
+					path.erase(path.begin() + (i + 1));
+				}
+
+			}
+		}
+		//if(while?) path.size() > 2 run comparison between current pos and path[1]
+		while (path.size() > 1) {
+
+			for (int box = 0; box < walls->size(); box++) {
+
+				float nodeX, nodeY;
+				pathfindingNodes->GetNodePos(path[1], nodeX, nodeY);
+
+				bool hasColided = false;
+
+				if (walls->at(box).IntersectsWith(posX, posY, nodeX, nodeY)) {
+					hasColided = true;
+					break;
+				}
+
+				if (hasColided) {
+					break;//if we've colided then we need to advance i
+				}
+				else {
+					path.erase(path.begin());
+				}
+			}
 		}
 
-	}
+		//if path.size() == 1 run comparison between current pos and target pos
+		if (path.size() == 1) {
+			bool hasColided = false;
 
-	//if(while?) path.size() > 2 run comparison between current pos and path[1]
-	
-	//if path.size() == 1 run comparison between current pos and target pos
+			for (int i = 0; i < walls->size(); i++) {
+				if (walls->at(i).IntersectsWith(posX, posY, targetX, targetY)) {
+					hasColided = true;
+					break;
+				}
+			}
+
+			if (hasColided) {
+				path.clear();
+			}
+		}
+
+	} else {
+		path.clear();
+	}
 }
 
 void Agent::Update(float in_deltaTime) {

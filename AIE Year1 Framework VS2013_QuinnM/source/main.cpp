@@ -50,6 +50,7 @@ int main( int argc, char* argv[] )
 
 	//apply graph to agent
 	agent.SetGraph(&graph);
+	agent.SetWalls(&walls);
 
     //Game Loop
     do

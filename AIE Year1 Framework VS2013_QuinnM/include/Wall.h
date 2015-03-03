@@ -2,6 +2,7 @@
 #define _Wall_h_
 
 #include "AIE.h"
+#include <algorithm>
 
 class Wall {
 public:
@@ -14,7 +15,13 @@ public:
 	void GetTopLeft(float& ref_x, float& ref_y);
 	void GetBottomRight(float& ref_x, float& ref_y);
 
+	bool IntersectsWith(float end1_x, float end1_y, float end2_x, float end2_y);
+
 private:
+
+	//helper func
+	float lerp(float v0, float v1, float t);
+
 	float posX;
 	float posY;
 	float width;
