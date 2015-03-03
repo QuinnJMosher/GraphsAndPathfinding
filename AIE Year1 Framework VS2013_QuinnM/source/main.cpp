@@ -47,6 +47,7 @@ int main( int argc, char* argv[] )
 	//make walls
 	std::vector<Wall> walls = std::vector<Wall>();
 	walls.emplace_back(Wall(450, 300, 700, 40));
+	walls.emplace_back(Wall(450, 100, 30, 150));
 
 	//apply graph to agent
 	agent.SetGraph(&graph);

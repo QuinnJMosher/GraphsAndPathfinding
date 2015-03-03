@@ -58,35 +58,6 @@ void Agent::GoTo(float in_x, float in_y) {
 void Agent::SmoothPath() {
 	if (walls != nullptr && walls->size() > 0) {
 
-		//check within the nodes
-		for (int i = 0; i < path.size() - 2; i++) {
-			//get position of the start of the line
-			float end1_x, end1_y;
-			pathfindingNodes->GetNodePos(path[i], end1_x, end1_y);
-
-			//check for unnessesary nodes after current node
-			while (path.size() > i + 2) {//change to while loop (we will only need to access i and i + 2)
-				float end2_x, end2_y;
-				pathfindingNodes->GetNodePos(path[i + 2], end2_x, end2_y);
-
-				bool hasColided = false;
-				//check for any boxes in the way
-				for (int box = 0; box < walls->size(); box++) {
-					if (walls->at(box).IntersectsWith(end1_x, end1_y, end2_x, end2_y)) {
-						hasColided = true;
-						break;
-					}
-				}
-
-				if (hasColided) {
-					break;//if we've colided then we need to advance i
-				} else {
-					path.erase(path.begin() + (i + 1));
-				}
-
-			}
-		}
-
 		//check current position against nodes
 		while (path.size() > 1) {
 
@@ -113,6 +84,62 @@ void Agent::SmoothPath() {
 			}
 		}
 
+		//check target w/ 2nd to last node
+		while (path.size() > 1) {
+
+			float node_x, node_y;
+			pathfindingNodes->GetNodePos(path[path.size() - 2], node_x, node_y);
+
+			bool hasColided = false;
+			//check for any boxes in the way
+			for (int box = 0; box < walls->size(); box++) {
+				if (walls->at(box).IntersectsWith(node_x, node_y, targetX, targetY)) {
+					hasColided = true;
+					break;
+				}
+			}
+
+			if (hasColided) {
+				break;
+			}
+			else {
+				path.erase(path.end() - 1);
+			}
+
+		}
+
+		//check within the nodes
+		if (path.size() > 2) {
+			for (int i = 0; i < path.size() - 2; i++) {
+				//get position of the start of the line
+				float end1_x, end1_y;
+				pathfindingNodes->GetNodePos(path[i], end1_x, end1_y);
+
+				//check for unnessesary nodes after current node
+				while (path.size() > i + 2) {//change to while loop (we will only need to access i and i + 2)
+					float end2_x, end2_y;
+					pathfindingNodes->GetNodePos(path[i + 2], end2_x, end2_y);
+
+					bool hasColided = false;
+					//check for any boxes in the way
+					for (int box = 0; box < walls->size(); box++) {
+						if (walls->at(box).IntersectsWith(end1_x, end1_y, end2_x, end2_y)) {
+							hasColided = true;
+							break;
+						}
+					}
+
+					if (hasColided) {
+						break;//if we've colided then we need to advance i
+					}
+					else {
+						path.erase(path.begin() + (i + 1));
+					}
+
+				}
+			}
+		}
+
 		//check current pos and target nodes
 		if (path.size() == 1) {
 			bool hasColided = false;
@@ -124,7 +151,7 @@ void Agent::SmoothPath() {
 				}
 			}
 
-			if (hasColided) {
+			if (!hasColided) {
 				path.clear();
 			}
 		}
